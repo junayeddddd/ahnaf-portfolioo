@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Ahnaf Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg:       #5B1F1F;
+      --bg-dark:  #3d1414;
+      --bg-card:  #6e2626;
+      --bg-card2: #7a2b2b;
+      --pink:     #FF4081;
+      --orange:   #FF6A00;
+      --gradient: linear-gradient(135deg, #FF4081, #FF6A00);
+      --white:    #FFFFFF;
+      --w80:      rgba(255,255,255,0.80);
+      --w50:      rgba(255,255,255,0.50);
+      --w20:      rgba(255,255,255,0.20);
+      --w08:      rgba(255,255,255,0.08);
+      --radius:   16px;
+      --rsm:      10px;
+      --shadow:   0 24px 64px rgba(0,0,0,0.4);
+      --sans:     'Inter', system-ui, sans-serif;
+      --serif:    'Playfair Display', serif;
+      --trans:    all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg-dark);
+      color: var(--white);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-thumb { background: var(--gradient); border-radius: 99px; }
+
+    /* ── LAYOUT ── */
+    .admin-shell { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px; flex-shrink: 0;
+      background: var(--bg);
+      border-right: 1px solid var(--w08);
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh;
+      padding: 28px 0;
+    }
+    .sidebar-logo {
+      padding: 0 24px 28px;
+      border-bottom: 1px solid var(--w08);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-mark {
+      font-family: var(--serif); font-size: 1.8rem; font-weight: 900;
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .sidebar-logo span { font-size: 0.75rem; color: var(--w50); display: block; margin-top: -4px; }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .sidebar-section-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--w50);
+      padding: 0 12px; margin: 16px 0 6px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 10px;
+      color: var(--w80); text-decoration: none;
+      font-size: 0.88rem; font-weight: 500;
+      transition: var(--trans); cursor: pointer; border: none;
+      background: none; width: 100%; text-align: left;
+    }
+    .sidebar-link i { width: 18px; text-align: center; color: var(--w50); transition: var(--trans); }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: rgba(255,64,129,0.12);
+      color: var(--white);
+    }
+    .sidebar-link:hover i, .sidebar-link.active i { color: var(--pink); }
+    .sidebar-link.active { border-left: 3px solid var(--pink); padding-left: 11px; }
+    .sidebar-bottom {
+      padding: 16px 12px;
+      border-top: 1px solid var(--w08);
+    }
+    .sidebar-back {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--w50); text-decoration: none;
+      font-size: 0.83rem; padding: 10px 14px;
+      border-radius: 8px; transition: var(--trans);
+    }
+    .sidebar-back:hover { color: var(--white); background: var(--w08); }
+
+    /* ── MAIN ── */
+    .admin-main { flex: 1; overflow-y: auto; padding: 40px; }
+
+    /* ── TOP BAR ── */
+    .admin-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 36px; flex-wrap: wrap; gap: 16px;
+    }
+    .admin-topbar h1 {
+      font-family: var(--serif); font-size: 1.8rem; font-weight: 700;
+    }
+    .admin-topbar h1 span {
+      background: var(--gradient); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .topbar-actions { display: flex; gap: 12px; }
+
+    /* ── STATS STRIP ── */
+    .stats-strip {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 16px; margin-bottom: 36px;
+    }
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--w08);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      display: flex; align-items: center; gap: 16px;
+      transition: var(--trans);
+    }
+    .stat-card:hover { border-color: rgba(255,64,129,0.3); transform: translateY(-2px); }
+    .stat-card-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      border-radius: 12px; background: var(--gradient);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: #fff;
+    }
+    .stat-card-num { font-family: var(--serif); font-size: 1.8rem; font-weight: 900; line-height: 1; }
+    .stat-card-label { font-size: 0.78rem; color: var(--w50); margin-top: 2px; }
+
+    /* ── SECTION PANELS ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── CARD PANEL ── */
+    .card-panel {
+      background: var(--bg);
+      border: 1px solid var(--w08);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-panel-header {
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--w08);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .card-panel-header h2 {
+      font-family: var(--serif); font-size: 1.15rem; font-weight: 700;
+    }
+    .card-panel-body { padding: 28px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 22px; border-radius: 50px; font-weight: 600;
+      font-size: 0.87rem; font-family: var(--sans);
+      cursor: pointer; border: none; text-decoration: none;
+      transition: var(--trans); position: relative; overflow: hidden;
+    }
+    .btn-primary { background: var(--gradient); color: #fff; box-shadow: 0 6px 24px rgba(255,64,129,0.4); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(255,64,129,0.55); }
+    .btn-outline { background: transparent; color: var(--white); border: 1.5px solid var(--w20); }
+    .btn-outline:hover { border-color: var(--pink); color: var(--pink); }
+    .btn-danger { background: rgba(220,53,69,0.15); color: #ff6b7a; border: 1px solid rgba(220,53,69,0.3); }
+    .btn-danger:hover { background: rgba(220,53,69,0.28); transform: translateY(-1px); }
+    .btn-sm { padding: 7px 16px; font-size: 0.8rem; }
+    .btn-icon { padding: 9px; border-radius: 10px; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group { position: relative; margin-bottom: 4px; }
+    .form-group label {
+      display: block; font-size: 0.78rem; font-weight: 600;
+      color: var(--w50); margin-bottom: 7px;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--w08);
+      border: 1.5px solid var(--w20);
+      border-radius: var(--rsm);
+      padding: 12px 16px;
+      color: var(--white);
+      font-family: var(--sans); font-size: 0.92rem;
+      outline: none; transition: var(--trans);
+      -webkit-appearance: none;
+    }
+    .form-group select option { background: var(--bg); }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--pink);
+      background: rgba(255,64,129,0.06);
+      box-shadow: 0 0 0 3px rgba(255,64,129,0.1);
+    }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-hint { font-size: 0.75rem; color: var(--w50); margin-top: 5px; }
+    .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+    .checkbox-group input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--pink);
+      cursor: pointer; flex-shrink: 0;
+    }
+    .checkbox-group label {
+      margin: 0; font-size: 0.88rem; color: var(--w80);
+      text-transform: none; letter-spacing: normal; cursor: pointer;
+    }
+    .form-actions {
+      display: flex; gap: 12px; align-items: center;
+      margin-top: 28px; flex-wrap: wrap;
+    }
+    .form-alert {
+      display: none; padding: 12px 18px; border-radius: var(--rsm);
+      font-size: 0.88rem; font-weight: 600;
+      align-items: center; gap: 8px; margin-top: 16px;
+    }
+    .form-alert.success {
+      display: flex;
+      background: rgba(0,200,100,0.1); border: 1px solid rgba(0,200,100,0.3);
+      color: #00c864;
+    }
+    .form-alert.error {
+      display: flex;
+      background: rgba(220,53,69,0.1); border: 1px solid rgba(220,53,69,0.3);
+      color: #ff6b7a;
+    }
+
+    /* ── WORKS TABLE ── */
+    .works-table-wrap { overflow-x: auto; }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    thead th {
+      padding: 12px 16px; text-align: left;
+      color: var(--w50); font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--w08);
+      white-space: nowrap;
+    }
+    tbody tr { transition: background 0.2s; border-bottom: 1px solid var(--w08); }
+    tbody tr:hover { background: var(--w08); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 14px 16px; vertical-align: middle; }
+    .td-thumb {
+      width: 60px; height: 40px; border-radius: 6px;
+      object-fit: cover; background: var(--bg-dark);
+      display: block;
+    }
+    .td-thumb-placeholder {
+      width: 60px; height: 40px; border-radius: 6px;
+      background: var(--bg-dark);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--w20); font-size: 0.9rem;
+    }
+    .td-title { font-weight: 600; max-width: 200px; }
+    .td-title small { display: block; color: var(--w50); font-weight: 400; margin-top: 2px; font-size: 0.75rem; }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 99px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .badge-cat {
+      background: rgba(255,64,129,0.15); color: var(--pink);
+    }
+    .badge-featured {
+      background: rgba(255,215,0,0.15); color: #FFD700;
+    }
+    .td-actions { display: flex; gap: 6px; white-space: nowrap; }
+    .table-empty {
+      text-align: center; padding: 60px 20px;
+      color: var(--w50); font-size: 0.92rem;
+    }
+    .table-empty i { font-size: 2.5rem; display: block; margin-bottom: 10px; color: var(--w20); }
+
+    /* ── VIDEO PREVIEW ── */
+    .video-preview-wrap {
+      margin-top: 12px; border-radius: var(--rsm);
+      overflow: hidden; aspect-ratio: 16/9;
+      background: var(--bg-dark); display: none;
+    }
+    .video-preview-wrap.show { display: block; }
+    .video-preview-wrap iframe, .video-preview-wrap video {
+      width: 100%; height: 100%; border: none;
+    }
+    .preview-btn {
+      margin-top: 8px;
+    }
+
+    /* ── SEARCH BAR ── */
+    .search-wrap { position: relative; }
+    .search-wrap input {
+      padding-left: 40px !important;
+      min-width: 240px;
+    }
+    .search-wrap i {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--w50); font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    /* ── TOAST ── */
+    .toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      padding: 14px 20px; border-radius: 12px;
+      font-size: 0.88rem; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      min-width: 280px; max-width: 380px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+      backdrop-filter: blur(12px);
+    }
+    .toast.success { background: rgba(20,140,80,0.92); color: #fff; border: 1px solid rgba(0,200,100,0.4); }
+    .toast.error   { background: rgba(180,40,50,0.92);  color: #fff; border: 1px solid rgba(220,53,69,0.4); }
+    .toast.info    { background: rgba(61,20,20,0.95);   color: #fff; border: 1px solid rgba(255,64,129,0.4); }
+    @keyframes toastIn { from { opacity:0; transform: translateX(40px); } to { opacity:1; transform: translateX(0); } }
+    @keyframes toastOut { to { opacity:0; transform: translateX(40px); } }
+
+    /* ── MODAL (Edit) ── */
+    .edit-modal-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .edit-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .edit-modal-box {
+      background: var(--bg);
+      border: 1px solid var(--w20);
+      border-radius: var(--radius);
+      width: 100%; max-width: 700px;
+      max-height: 90vh; overflow-y: auto;
+      transform: translateY(30px) scale(0.95);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      padding: 36px;
+    }
+    .edit-modal-overlay.open .edit-modal-box { transform: translateY(0) scale(1); }
+    .edit-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .edit-modal-header h2 { font-family: var(--serif); font-size: 1.3rem; }
+    .edit-modal-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--w08); border: 1px solid var(--w20);
+      color: var(--white); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--trans); font-size: 0.9rem;
+    }
+    .edit-modal-close:hover { background: var(--pink); border-color: var(--pink); }
+
+    /* ── CONFIRM DIALOG ── */
+    .confirm-overlay {
+      position: fixed; inset: 0; z-index: 1100;
+      background: rgba(0,0,0,0.8); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .confirm-overlay.open { opacity: 1; pointer-events: all; }
+    .confirm-box {
+      background: var(--bg); border: 1px solid var(--w20);
+      border-radius: var(--radius); padding: 36px;
+      max-width: 400px; text-align: center;
+      transform: scale(0.9); transition: transform 0.25s ease;
+    }
+    .confirm-overlay.open .confirm-box { transform: scale(1); }
+    .confirm-box i { font-size: 2.5rem; color: #ff6b7a; margin-bottom: 14px; }
+    .confirm-box h3 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 10px; }
+    .confirm-box p { color: var(--w80); font-size: 0.9rem; margin-bottom: 24px; }
+    .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .admin-main { padding: 20px; }
+      .stats-strip { grid-template-columns: repeat(2,1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .stats-strip { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── CONFIRM DIALOG ── -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <i class="fas fa-trash-alt"></i>
+    <h3>Delete This Work?</h3>
+    <p>This action cannot be undone. The work will be permanently removed from your portfolio.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT MODAL ── -->
+<div class="edit-modal-overlay" id="editModalOverlay">
+  <div class="edit-modal-box">
+    <div class="edit-modal-header">
+      <h2>Edit Work</h2>
+      <button class="edit-modal-close" id="editModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="editWorkForm">
+      <input type="hidden" id="editWorkId" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="editTitle">Title *</label>
+          <input type="text" id="editTitle" required placeholder="Project title" />
+        </div>
+        <div class="form-group">
+          <label for="editCategory">Category *</label>
+          <select id="editCategory" required>
+            <option value="">Select category…</option>
+            <option>Social Media Marketing</option>
+            <option>Content Creation</option>
+            <option>Logo Design</option>
+            <option>YouTube Thumbnail</option>
+            <option>Website Building</option>
+            <option>Video Production</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label for="editDesc">Description</label>
+          <textarea id="editDesc" rows="3" placeholder="Describe the project…"></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label for="editVideoUrl">Video URL</label>
+          <input type="url" id="editVideoUrl" placeholder="YouTube, Vimeo, Facebook or direct .mp4 URL" />
+        </div>
+        <div class="form-group form-full">
+          <label for="editThumbUrl">Thumbnail URL</label>
+          <input type="url" id="editThumbUrl" placeholder="https://…" />
+        </div>
+        <div class="form-group">
+          <label for="editClient">Client Name</label>
+          <input type="text" id="editClient" placeholder="Client or brand name" />
+        </div>
+        <div class="form-group">
+          <label for="editTags">Tags (comma separated)</label>
+          <input type="text" id="editTags" placeholder="Instagram, Design, Ads" />
+        </div>
+        <div class="form-group form-full">
+          <div class="checkbox-group">
+            <input type="checkbox" id="editFeatured" />
+            <label for="editFeatured">Mark as Featured Work</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        <button type="button" class="btn btn-outline" id="editCancelBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="admin-shell">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">A.</div>
+      <div>
+        <strong style="font-size:0.95rem">Admin Panel</strong>
+        <span>Ahnaf Portfolio</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Dashboard</div>
+      <button class="sidebar-link active" data-panel="dashboard"><i class="fas fa-th-large"></i> Overview</button>
+      <div class="sidebar-section-label">Portfolio</div>
+      <button class="sidebar-link" data-panel="add-work"><i class="fas fa-plus-circle"></i> Add New Work</button>
+      <button class="sidebar-link" data-panel="manage-works"><i class="fas fa-film"></i> Manage Works</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="index.html" class="sidebar-back"><i class="fas fa-arrow-left"></i> View Live Site</a>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Welcome back, <span>Ahnaf</span> 👋</h1>
+      <div class="topbar-actions">
+        <a href="index.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-external-link-alt"></i> Live Site</a>
+        <button class="btn btn-primary btn-sm" data-panel="add-work" onclick="switchPanel('add-work')">
+          <i class="fas fa-plus"></i> Add Work
+        </button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-strip" id="statsStrip">
+      <div class="stat-card">
+        <div class="stat-card-icon"><i class="fas fa-film"></i></div>
+        <div><div class="stat-card-num" id="statTotal">—</div><div class="stat-card-label">Total Works</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon"><i class="fas fa-star"></i></div>
+        <div><div class="stat-card-num" id="statFeatured">—</div><div class="stat-card-label">Featured</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background: linear-gradient(135deg,#FF6A00,#FF4081)"><i class="fab fa-instagram"></i></div>
+        <div><div class="stat-card-num" id="statSocial">—</div><div class="stat-card-label">Social Media</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon" style="background: linear-gradient(135deg,#9C27B0,#FF4081)"><i class="fas fa-palette"></i></div>
+        <div><div class="stat-card-num" id="statDesign">—</div><div class="stat-card-label">Design Works</div></div>
+      </div>
+    </div>
+
+    <!-- ── PANEL: DASHBOARD ── -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <h2><i class="fas fa-clock" style="color:var(--pink);margin-right:8px"></i>Recent Works</h2>
+          <button class="btn btn-outline btn-sm" onclick="switchPanel('manage-works')">View All</button>
+        </div>
+        <div class="card-panel-body">
+          <div class="works-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Thumb</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Featured</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="dashRecentBody">
+                <tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>No works yet. Add your first work!</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANEL: ADD WORK ── -->
+    <div class="panel" id="panel-add-work">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <h2><i class="fas fa-plus-circle" style="color:var(--pink);margin-right:8px"></i>Add New Work</h2>
+        </div>
+        <div class="card-panel-body">
+          <form id="addWorkForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="addTitle">Work Title *</label>
+                <input type="text" id="addTitle" required placeholder="e.g. Nike Instagram Campaign" />
+              </div>
+              <div class="form-group">
+                <label for="addCategory">Category *</label>
+                <select id="addCategory" required>
+                  <option value="" disabled selected>Select a category…</option>
+                  <option>Social Media Marketing</option>
+                  <option>Content Creation</option>
+                  <option>Logo Design</option>
+                  <option>YouTube Thumbnail</option>
+                  <option>Website Building</option>
+                  <option>Video Production</option>
+                </select>
+              </div>
+
+              <div class="form-group form-full">
+                <label for="addDesc">Description</label>
+                <textarea id="addDesc" rows="3" placeholder="Describe what this project was about, the strategy, results…"></textarea>
+              </div>
+
+              <div class="form-group form-full">
+                <label for="addVideoUrl">Video URL *</label>
+                <input type="url" id="addVideoUrl" placeholder="Paste YouTube, Vimeo, Facebook video URL or direct .mp4 link" />
+                <div class="form-hint">Supports: YouTube, Vimeo, Facebook, or direct .mp4 URLs</div>
+                <button type="button" class="btn btn-outline btn-sm preview-btn" id="previewVideoBtn"><i class="fas fa-eye"></i> Preview Video</button>
+                <div class="video-preview-wrap" id="videoPreviewWrap"></div>
+              </div>
+
+              <div class="form-group form-full">
+                <label for="addThumbUrl">Thumbnail Image URL</label>
+                <input type="url" id="addThumbUrl" placeholder="https://… (image URL for the video card thumbnail)" />
+                <div class="form-hint">Paste any image URL — this will be shown on the portfolio card.</div>
+                <div id="thumbPreviewWrap" style="margin-top:10px;display:none;">
+                  <img id="thumbPreviewImg" src="" alt="Thumbnail Preview" style="max-height:120px;border-radius:8px;border:1px solid var(--w20);" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="addClient">Client / Brand Name</label>
+                <input type="text" id="addClient" placeholder="e.g. Adidas Bangladesh" />
+              </div>
+              <div class="form-group">
+                <label for="addTags">Tags <span style="font-weight:400;color:var(--w50)">(comma separated)</span></label>
+                <input type="text" id="addTags" placeholder="Instagram, Ads, Growth, Design" />
+              </div>
+
+              <div class="form-group form-full">
+                <div class="checkbox-group">
+                  <input type="checkbox" id="addFeatured" />
+                  <label for="addFeatured">Mark as Featured Work <small style="color:var(--w50);font-weight:400">(shows a ✦ badge on the card)</small></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="addWorkBtn">
+                <i class="fas fa-plus"></i> Add to Portfolio
+              </button>
+              <button type="reset" class="btn btn-outline">
+                <i class="fas fa-times"></i> Clear
+              </button>
+            </div>
+            <div class="form-alert" id="addFormAlert"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANEL: MANAGE WORKS ── -->
+    <div class="panel" id="panel-manage-works">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <h2><i class="fas fa-film" style="color:var(--pink);margin-right:8px"></i>All Portfolio Works</h2>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <div class="search-wrap form-group" style="margin:0">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchInput" placeholder="Search works…" />
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="switchPanel('add-work')">
+              <i class="fas fa-plus"></i> Add Work
+            </button>
+          </div>
+        </div>
+        <div class="card-panel-body">
+          <div class="works-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Thumb</th>
+                  <th>Title / Client</th>
+                  <th>Category</th>
+                  <th>Featured</th>
+                  <th>Date Added</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="manageWorksBody">
+                <tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>Loading works…</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="paginationWrap" style="display:flex;justify-content:center;gap:10px;margin-top:24px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   ADMIN JS
+═══════════════════════════════════════════════════ */
+'use strict';
+
+const TABLE = 'portfolio_works';
+let allWorks = [];
+let deleteTargetId = null;
+let currentPage = 1;
+const PAGE_SIZE = 10;
+
+/* ── PANEL NAVIGATION ── */
+function switchPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('active');
+  const link = document.querySelector(`.sidebar-link[data-panel="${id}"]`);
+  if (link) link.classList.add('active');
+  if (id === 'manage-works') renderManageTable(allWorks);
+}
+document.querySelectorAll('.sidebar-link[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => switchPanel(btn.dataset.panel));
+});
+
+/* ── TOAST ── */
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle' };
+  el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'toastOut 0.3s ease forwards';
+    setTimeout(() => el.remove(), 310);
+  }, 3500);
+}
+
+/* ── API ── */
+async function apiFetch(path, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch('tables/' + path, opts);
+  if (!res.ok && res.status !== 204) throw new Error(`HTTP ${res.status}`);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+/* ── LOAD ALL WORKS ── */
+async function loadAllWorks() {
+  try {
+    const data = await apiFetch(`${TABLE}?limit=200&sort=created_at`);
+    allWorks = (data.data || []).reverse(); // newest first
+    updateStats();
+    renderDashRecent();
+    renderManageTable(allWorks);
+  } catch (e) {
+    console.error(e);
+    toast('Failed to load works. Check your connection.', 'error');
+  }
+}
+
+/* ── STATS ── */
+function updateStats() {
+  document.getElementById('statTotal').textContent    = allWorks.length;
+  document.getElementById('statFeatured').textContent = allWorks.filter(w => w.featured).length;
+  document.getElementById('statSocial').textContent   = allWorks.filter(w => w.category === 'Social Media Marketing').length;
+  document.getElementById('statDesign').textContent   = allWorks.filter(w => ['Logo Design','YouTube Thumbnail'].includes(w.category)).length;
+}
+
+/* ── RENDER DASHBOARD RECENT ── */
+function renderDashRecent() {
+  const tbody = document.getElementById('dashRecentBody');
+  const recent = allWorks.slice(0, 5);
+  if (!recent.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>No works yet. Add your first work!</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = recent.map(w => buildTableRow(w)).join('');
+  bindTableActions(tbody);
+}
+
+/* ── RENDER MANAGE TABLE ── */
+let searchTerm = '';
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchTerm = this.value.toLowerCase();
+  currentPage = 1;
+  const filtered = allWorks.filter(w =>
+    (w.title || '').toLowerCase().includes(searchTerm) ||
+    (w.category || '').toLowerCase().includes(searchTerm) ||
+    (w.client_name || '').toLowerCase().includes(searchTerm)
+  );
+  renderManageTable(filtered);
+});
+
+function renderManageTable(works) {
+  const tbody = document.getElementById('manageWorksBody');
+  const pag = document.getElementById('paginationWrap');
+  if (!works.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>${searchTerm ? 'No results found.' : 'No works yet. <a href="#" onclick="switchPanel(\'add-work\');return false" style="color:var(--pink)">Add your first work!</a>'}</td></tr>`;
+    pag.innerHTML = '';
+    return;
+  }
+  const totalPages = Math.ceil(works.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = 1;
+  const paginated = works.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  tbody.innerHTML = paginated.map(w => buildTableRow(w)).join('');
+  bindTableActions(tbody);
+
+  // Pagination
+  pag.innerHTML = '';
+  if (totalPages > 1) {
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm ' + (i === currentPage ? 'btn-primary' : 'btn-outline');
+      btn.textContent = i;
+      btn.addEventListener('click', () => { currentPage = i; renderManageTable(works); });
+      pag.appendChild(btn);
+    }
+  }
+}
+
+function buildTableRow(w) {
+  const thumb = w.thumbnail_url
+    ? `<img src="${escH(w.thumbnail_url)}" class="td-thumb" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+    : '';
+  const ph = `<div class="td-thumb-placeholder" ${w.thumbnail_url ? 'style="display:none"' : ''}><i class="fas fa-film"></i></div>`;
+  const date = w.created_at ? new Date(w.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+  return `<tr data-id="${escH(w.id)}">
+    <td>${thumb}${ph}</td>
+    <td class="td-title">${escH(w.title)}<small>${w.client_name ? escH(w.client_name) : ''}</small></td>
+    <td><span class="badge badge-cat">${escH(w.category || '—')}</span></td>
+    <td>${w.featured ? '<span class="badge badge-featured">✦ Yes</span>' : '<span style="color:var(--w50);font-size:0.8rem">—</span>'}</td>
+    <td style="color:var(--w50);font-size:0.82rem">${date}</td>
+    <td class="td-actions">
+      <button class="btn btn-outline btn-sm btn-icon edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+    </td>
+  </tr>`;
+}
+
+function bindTableActions(tbody) {
+  tbody.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.closest('tr').dataset.id;
+      openEditModal(allWorks.find(w => w.id === id));
+    });
+  });
+  tbody.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      deleteTargetId = btn.closest('tr').dataset.id;
+      document.getElementById('confirmOverlay').classList.add('open');
+    });
+  });
+}
+
+/* ── ADD WORK FORM ── */
+document.getElementById('addWorkForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('addWorkBtn');
+  const alertEl = document.getElementById('addFormAlert');
+  alertEl.className = 'form-alert';
+
+  const tagsRaw = document.getElementById('addTags').value;
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  const payload = {
+    title:         document.getElementById('addTitle').value.trim(),
+    category:      document.getElementById('addCategory').value,
+    description:   document.getElementById('addDesc').value.trim(),
+    video_url:     document.getElementById('addVideoUrl').value.trim(),
+    thumbnail_url: document.getElementById('addThumbUrl').value.trim(),
+    client_name:   document.getElementById('addClient').value.trim(),
+    tags,
+    featured:      document.getElementById('addFeatured').checked,
+  };
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding…';
+
+  try {
+    await apiFetch(TABLE, 'POST', payload);
+    alertEl.className = 'form-alert success';
+    alertEl.innerHTML = '<i class="fas fa-check-circle"></i> Work added successfully! It now appears on your portfolio.';
+    this.reset();
+    document.getElementById('videoPreviewWrap').classList.remove('show');
+    document.getElementById('thumbPreviewWrap').style.display = 'none';
+    toast('Work added to portfolio! 🎉', 'success');
+    await loadAllWorks();
+  } catch (err) {
+    alertEl.className = 'form-alert error';
+    alertEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to add work. Please try again.';
+    toast('Error adding work.', 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-plus"></i> Add to Portfolio';
+  setTimeout(() => { alertEl.className = 'form-alert'; }, 5000);
+});
+
+/* ── VIDEO PREVIEW ── */
+document.getElementById('previewVideoBtn').addEventListener('click', () => {
+  const url = document.getElementById('addVideoUrl').value.trim();
+  const wrap = document.getElementById('videoPreviewWrap');
+  if (!url) { toast('Enter a video URL first.', 'info'); return; }
+  wrap.innerHTML = buildVideoEmbed(url);
+  wrap.classList.add('show');
+});
+
+/* ── THUMB PREVIEW ── */
+document.getElementById('addThumbUrl').addEventListener('input', function() {
+  const url = this.value.trim();
+  const wrap = document.getElementById('thumbPreviewWrap');
+  const img  = document.getElementById('thumbPreviewImg');
+  if (url) { img.src = url; wrap.style.display = 'block'; }
+  else wrap.style.display = 'none';
+});
+
+/* ── EDIT MODAL ── */
+const editOverlay = document.getElementById('editModalOverlay');
+function openEditModal(work) {
+  if (!work) return;
+  document.getElementById('editWorkId').value   = work.id;
+  document.getElementById('editTitle').value    = work.title || '';
+  document.getElementById('editCategory').value = work.category || '';
+  document.getElementById('editDesc').value     = work.description || '';
+  document.getElementById('editVideoUrl').value = work.video_url || '';
+  document.getElementById('editThumbUrl').value = work.thumbnail_url || '';
+  document.getElementById('editClient').value   = work.client_name || '';
+  document.getElementById('editTags').value     = Array.isArray(work.tags) ? work.tags.join(', ') : (work.tags || '');
+  document.getElementById('editFeatured').checked = !!work.featured;
+  editOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeEditModal() {
+  editOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('editModalClose').addEventListener('click', closeEditModal);
+document.getElementById('editCancelBtn').addEventListener('click', closeEditModal);
+editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
+
+document.getElementById('editWorkForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('[type="submit"]');
+  const id  = document.getElementById('editWorkId').value;
+  const tagsRaw = document.getElementById('editTags').value;
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const payload = {
+    title:         document.getElementById('editTitle').value.trim(),
+    category:      document.getElementById('editCategory').value,
+    description:   document.getElementById('editDesc').value.trim(),
+    video_url:     document.getElementById('editVideoUrl').value.trim(),
+    thumbnail_url: document.getElementById('editThumbUrl').value.trim(),
+    client_name:   document.getElementById('editClient').value.trim(),
+    tags,
+    featured:      document.getElementById('editFeatured').checked,
+  };
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+  try {
+    await apiFetch(`${TABLE}/${id}`, 'PUT', payload);
+    toast('Work updated successfully!', 'success');
+    closeEditModal();
+    await loadAllWorks();
+  } catch {
+    toast('Failed to save changes.', 'error');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+});
+
+/* ── DELETE CONFIRM ── */
+document.getElementById('confirmCancel').addEventListener('click', () => {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  deleteTargetId = null;
+});
+document.getElementById('confirmOk').addEventListener('click', async () => {
+  if (!deleteTargetId) return;
+  document.getElementById('confirmOverlay').classList.remove('open');
+  try {
+    await apiFetch(`${TABLE}/${deleteTargetId}`, 'DELETE');
+    toast('Work deleted.', 'success');
+    deleteTargetId = null;
+    await loadAllWorks();
+  } catch {
+    toast('Failed to delete work.', 'error');
+  }
+});
+
+/* ── VIDEO EMBED BUILDER ── */
+function buildVideoEmbed(url) {
+  if (!url) return '';
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (ytMatch) return `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return `<iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
+  if (url.match(/\.(mp4|webm|ogg)(\?.*)?$/i)) return `<video controls autoplay playsinline style="width:100%;height:100%;background:#000"><source src="${escH(url)}" type="video/mp4"></video>`;
+  return `<iframe src="${escH(url)}" allowfullscreen></iframe>`;
+}
+
+function escH(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── INIT ── */
+loadAllWorks();
+</script>
+</body>
+</html>

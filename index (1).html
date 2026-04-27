@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ahnaf | Digital Marketing Expert</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════ CURSOR GLOW ═══════════════════ -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- ═══════════════════ PARTICLES ═══════════════════ -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">
+        <span class="logo-text">A<span class="logo-accent">.</span></span>
+        <span class="logo-sub">Ahnaf</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home" class="nav-link active">Home</a></li>
+        <li><a href="#about" class="nav-link">About</a></li>
+        <li><a href="#services" class="nav-link">Services</a></li>
+        <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+        <li><a href="#contact" class="nav-link">Contact</a></li>
+        <li><a href="admin.html" class="nav-link nav-admin"><i class="fas fa-lock"></i> Admin</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════ HERO ═══════════════════ -->
+  <section class="hero" id="home">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge reveal-up">
+        <span class="badge-dot"></span>
+        Available for Projects
+      </div>
+      <h1 class="hero-title reveal-up">
+        <span class="title-line">Digital</span>
+        <span class="title-line gradient-text">Marketing</span>
+        <span class="title-line">Expert</span>
+      </h1>
+      <p class="hero-tagline reveal-up">
+        I'm <strong>Ahnaf</strong> — I help brands dominate the digital space with bold strategy, stunning visuals, and content that converts.
+      </p>
+      <div class="hero-cta reveal-up">
+        <a href="#portfolio" class="btn btn-primary">
+          <span>View My Work</span>
+          <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="#contact" class="btn btn-outline">
+          <span>Let's Talk</span>
+        </a>
+      </div>
+
+    </div>
+    <div class="hero-visual">
+      <div class="hero-card-wrap">
+        <div class="hero-avatar-card">
+          <div class="avatar-ring ring-1"></div>
+          <div class="avatar-ring ring-2"></div>
+          <div class="avatar-ring ring-3"></div>
+          <div class="avatar-icon">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <!-- Floating icons -->
+          <div class="float-icon fi-1"><i class="fab fa-instagram"></i></div>
+          <div class="float-icon fi-2"><i class="fab fa-facebook"></i></div>
+          <div class="float-icon fi-3"><i class="fab fa-youtube"></i></div>
+          <div class="float-icon fi-4"><i class="fas fa-chart-line"></i></div>
+          <div class="float-icon fi-5"><i class="fas fa-bullhorn"></i></div>
+          <div class="float-icon fi-6"><i class="fas fa-palette"></i></div>
+          <div class="float-icon fi-7"><i class="fas fa-globe"></i></div>
+          <div class="float-icon fi-8"><i class="fas fa-star"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span>Scroll Down</span>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ MARQUEE ═══════════════════ -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <div class="marquee-content">
+        <span>Social Media Marketing</span><span class="marquee-dot">✦</span>
+        <span>Content Creation</span><span class="marquee-dot">✦</span>
+        <span>Logo Design</span><span class="marquee-dot">✦</span>
+        <span>YouTube Thumbnails</span><span class="marquee-dot">✦</span>
+        <span>Website Building</span><span class="marquee-dot">✦</span>
+        <span>Brand Strategy</span><span class="marquee-dot">✦</span>
+        <span>Digital Growth</span><span class="marquee-dot">✦</span>
+        <span>Social Media Marketing</span><span class="marquee-dot">✦</span>
+        <span>Content Creation</span><span class="marquee-dot">✦</span>
+        <span>Logo Design</span><span class="marquee-dot">✦</span>
+        <span>YouTube Thumbnails</span><span class="marquee-dot">✦</span>
+        <span>Website Building</span><span class="marquee-dot">✦</span>
+        <span>Brand Strategy</span><span class="marquee-dot">✦</span>
+        <span>Digital Growth</span><span class="marquee-dot">✦</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ ABOUT ═══════════════════ -->
+  <section class="about section" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-visual reveal-left">
+          <div class="about-image-wrap">
+            <div class="about-orb"></div>
+            <div class="about-icon-center"><i class="fas fa-user-tie"></i></div>
+            <div class="about-badge-card ab-card-1">
+              <i class="fas fa-trophy"></i>
+              <span>Top Rated</span>
+            </div>
+            <div class="about-badge-card ab-card-2">
+              <i class="fas fa-fire"></i>
+              <span>Trending</span>
+            </div>
+          </div>
+        </div>
+        <div class="about-content reveal-right">
+          <div class="section-tag">About Me</div>
+          <h2 class="section-title">
+            Turning Brands Into<br /><span class="gradient-text">Digital Powerhouses</span>
+          </h2>
+          <p class="about-text">
+            I'm <strong>Ahnaf</strong>, a passionate Digital Marketing Expert with a mission to help businesses look incredible online and grow consistently. I blend creative strategy with data-driven execution to craft campaigns that actually move the needle.
+          </p>
+          <p class="about-text">
+            Whether it's a scroll-stopping post, a click-worthy thumbnail, or a brand identity that turns heads — I deliver results that matter. My work has helped businesses across industries save time, look more professional, and attract the right customers.
+          </p>
+          <div class="about-skills">
+            <div class="skill-pill"><i class="fab fa-instagram"></i> Instagram Growth</div>
+            <div class="skill-pill"><i class="fab fa-facebook"></i> Facebook Ads</div>
+            <div class="skill-pill"><i class="fas fa-pen-nib"></i> Content Strategy</div>
+            <div class="skill-pill"><i class="fas fa-image"></i> Visual Design</div>
+            <div class="skill-pill"><i class="fas fa-code"></i> Web Building</div>
+            <div class="skill-pill"><i class="fab fa-youtube"></i> YouTube SEO</div>
+          </div>
+          <a href="#contact" class="btn btn-primary mt-btn">
+            <span>Work With Me</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ SERVICES ═══════════════════ -->
+  <section class="services section" id="services">
+    <div class="container">
+      <div class="section-header reveal-up">
+        <div class="section-tag">What I Do</div>
+        <h2 class="section-title">Premium <span class="gradient-text">Digital Services</span></h2>
+        <p class="section-subtitle">Everything your brand needs to dominate the digital world — under one expert.</p>
+      </div>
+      <div class="services-grid">
+
+        <div class="service-card reveal-up" style="--delay: 0.1s">
+          <div class="card-glow"></div>
+          <div class="service-icon-wrap">
+            <div class="service-icon"><i class="fab fa-instagram"></i></div>
+          </div>
+          <h3 class="service-title">Social Media Marketing</h3>
+          <p class="service-desc">Professional posts, magnetic captions, and growth-focused strategies for Instagram, Facebook, and beyond. Your brand, always on point.</p>
+          <div class="service-tags">
+            <span>Instagram</span><span>Facebook</span><span>Strategy</span>
+          </div>
+          <div class="card-arrow"><i class="fas fa-arrow-up-right"></i></div>
+        </div>
+
+        <div class="service-card reveal-up" style="--delay: 0.2s">
+          <div class="card-glow"></div>
+          <div class="service-icon-wrap">
+            <div class="service-icon"><i class="fas fa-pen-fancy"></i></div>
+          </div>
+          <h3 class="service-title">Content Creation</h3>
+          <p class="service-desc">From captivating videos to polished graphics — I create content that tells your story, builds authority, and keeps your audience coming back.</p>
+          <div class="service-tags">
+            <span>Video</span><span>Graphics</span><span>Copywriting</span>
+          </div>
+          <div class="card-arrow"><i class="fas fa-arrow-up-right"></i></div>
+        </div>
+
+        <div class="service-card reveal-up" style="--delay: 0.3s">
+          <div class="card-glow"></div>
+          <div class="service-icon-wrap">
+            <div class="service-icon"><i class="fas fa-palette"></i></div>
+          </div>
+          <h3 class="service-title">Logo Design</h3>
+          <p class="service-desc">Memorable, versatile logos that perfectly embody your brand's personality. First impressions are everything — make yours unforgettable.</p>
+          <div class="service-tags">
+            <span>Branding</span><span>Identity</span><span>Design</span>
+          </div>
+          <div class="card-arrow"><i class="fas fa-arrow-up-right"></i></div>
+        </div>
+
+        <div class="service-card reveal-up" style="--delay: 0.4s">
+          <div class="card-glow"></div>
+          <div class="service-icon-wrap">
+            <div class="service-icon"><i class="fab fa-youtube"></i></div>
+          </div>
+          <h3 class="service-title">YouTube Thumbnails</h3>
+          <p class="service-desc">Eye-catching thumbnails engineered to stop the scroll and drive clicks. Boost your CTR and watch your channel grow like never before.</p>
+          <div class="service-tags">
+            <span>CTR Boost</span><span>Design</span><span>YouTube</span>
+          </div>
+          <div class="card-arrow"><i class="fas fa-arrow-up-right"></i></div>
+        </div>
+
+        <div class="service-card reveal-up" style="--delay: 0.5s">
+          <div class="card-glow"></div>
+          <div class="service-icon-wrap">
+            <div class="service-icon"><i class="fas fa-globe"></i></div>
+          </div>
+          <h3 class="service-title">Website Building</h3>
+          <p class="service-desc">Modern, fast, mobile-responsive websites that convert visitors into customers. Your 24/7 digital storefront, built to impress.</p>
+          <div class="service-tags">
+            <span>Responsive</span><span>Modern</span><span>Fast</span>
+          </div>
+          <div class="card-arrow"><i class="fas fa-arrow-up-right"></i></div>
+        </div>
+
+        <div class="service-card reveal-up" style="--delay: 0.6s">
+          <div class="card-glow"></div>
+          <div class="service-icon-wrap">
+            <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+          </div>
+          <h3 class="service-title">Brand Strategy</h3>
+          <p class="service-desc">Tailored digital growth strategies that align with your business goals. I analyze, plan, and execute for maximum ROI and long-term brand equity.</p>
+          <div class="service-tags">
+            <span>Growth</span><span>ROI</span><span>Analytics</span>
+          </div>
+          <div class="card-arrow"><i class="fas fa-arrow-up-right"></i></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ PORTFOLIO ═══════════════════ -->
+  <section class="portfolio section" id="portfolio">
+    <div class="container">
+      <div class="section-header reveal-up">
+        <div class="section-tag">My Work</div>
+        <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
+        <p class="section-subtitle">Real campaigns, real results. Explore my latest work across all services.</p>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="portfolio-filters reveal-up">
+        <button class="filter-btn active" data-filter="all">All Works</button>
+        <button class="filter-btn" data-filter="Social Media Marketing">Social Media</button>
+        <button class="filter-btn" data-filter="Content Creation">Content</button>
+        <button class="filter-btn" data-filter="Logo Design">Logo Design</button>
+        <button class="filter-btn" data-filter="YouTube Thumbnail">Thumbnails</button>
+        <button class="filter-btn" data-filter="Website Building">Websites</button>
+      </div>
+
+      <!-- Portfolio Grid -->
+      <div class="portfolio-grid" id="portfolioGrid">
+        <div class="portfolio-empty" id="portfolioEmpty">
+          <div class="empty-icon"><i class="fas fa-film"></i></div>
+          <h3>No works yet</h3>
+          <p>Ahnaf's portfolio is being curated. Check back soon or <a href="admin.html">add works</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ VIDEO MODAL ═══════════════════ -->
+  <div class="modal-overlay" id="videoModal">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+      <div class="modal-video-wrap" id="modalVideoWrap"></div>
+      <div class="modal-info">
+        <span class="modal-category" id="modalCategory"></span>
+        <h3 class="modal-title" id="modalTitle"></h3>
+        <p class="modal-desc" id="modalDesc"></p>
+        <span class="modal-client" id="modalClient"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ TESTIMONIAL / CTA STRIP ═══════════════════ -->
+  <section class="cta-strip">
+    <div class="cta-strip-inner reveal-up">
+      <div class="cta-strip-text">
+        <h2>Ready to <span class="gradient-text">Grow Your Brand?</span></h2>
+        <p>Let's build something extraordinary together. Your audience is waiting.</p>
+      </div>
+      <a href="#contact" class="btn btn-primary btn-lg">
+        <span>Start a Project</span>
+        <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ CONTACT ═══════════════════ -->
+  <section class="contact section" id="contact">
+    <div class="container">
+      <div class="section-header reveal-up">
+        <div class="section-tag">Get In Touch</div>
+        <h2 class="section-title">Let's <span class="gradient-text">Collaborate</span></h2>
+        <p class="section-subtitle">Have a project in mind? I'd love to hear about it. Send a message and let's make it happen.</p>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info reveal-left">
+          <div class="contact-item">
+            <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+            <div>
+              <span class="ci-label">Email</span>
+              <a href="mailto:Shasminahnaf02@gmail.com" class="ci-value">Shasminahnaf02@gmail.com</a>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+            <div>
+              <span class="ci-label">WhatsApp</span>
+              <a href="https://wa.me/8801639456596" class="ci-value">+8801639456596</a>
+            </div>
+          </div>
+          <div class="contact-item">
+            <div class="contact-icon"><i class="fab fa-instagram"></i></div>
+            <div>
+              <span class="ci-label">Instagram</span>
+              <a href="https://instagram.com/digitalmarketingwahnaf" class="ci-value">@digitalmarketingwahnaf</a>
+            </div>
+          </div>
+          <div class="contact-social">
+            <a href="https://instagram.com/digitalmarketingwahnaf" class="social-btn" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-btn" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="#" class="social-btn" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="#" class="social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <form class="contact-form reveal-right" id="contactForm">
+          <div class="form-row">
+            <div class="form-group">
+              <input type="text" id="cfName" placeholder=" " required />
+              <label for="cfName">Your Name</label>
+            </div>
+            <div class="form-group">
+              <input type="email" id="cfEmail" placeholder=" " required />
+              <label for="cfEmail">Your Email</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <select id="cfService">
+              <option value="" disabled selected>Select a Service</option>
+              <option>Social Media Marketing</option>
+              <option>Content Creation</option>
+              <option>Logo Design</option>
+              <option>YouTube Thumbnails</option>
+              <option>Website Building</option>
+              <option>Brand Strategy</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <textarea id="cfMessage" rows="5" placeholder=" " required></textarea>
+            <label for="cfMessage">Your Message</label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">
+            <span>Send Message</span>
+            <i class="fas fa-paper-plane"></i>
+          </button>
+          <div class="form-success" id="formSuccess">
+            <i class="fas fa-check-circle"></i> Message sent! I'll get back to you shortly.
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════ FOOTER ═══════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="logo-text">A<span class="logo-accent">.</span></span>
+        <span class="footer-tagline">Digital Marketing Expert</span>
+      </div>
+      <nav class="footer-nav">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#portfolio">Portfolio</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <p class="footer-copy">&copy; 2025 Ahnaf. Crafted with <span class="heart">♥</span> for digital excellence.</p>
+    </div>
+  </footer>
+
+  <script src="js/particles.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
