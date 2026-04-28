@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Ahnaf Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/site-config.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #5B1F1F; --bg-dark: #3d1414; --bg-card: #6e2626; --bg-card2: #7a2b2b;
+      --pink: #FF4081; --orange: #FF6A00; --gradient: linear-gradient(135deg,#FF4081,#FF6A00);
+      --white: #FFFFFF; --w80: rgba(255,255,255,.80); --w50: rgba(255,255,255,.50);
+      --w20: rgba(255,255,255,.20); --w08: rgba(255,255,255,.08);
+      --radius: 16px; --rsm: 10px; --shadow: 0 24px 64px rgba(0,0,0,.4);
+      --sans: 'Inter',system-ui,sans-serif; --serif: 'Playfair Display',serif;
+      --trans: all 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg-dark); color: var(--white); font-family: var(--sans); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: var(--bg-dark); } ::-webkit-scrollbar-thumb { background: var(--gradient); border-radius: 99px; }
+
+    /* ── LOCK SCREEN ── */
+    #lockScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg-dark); display: flex; align-items: center; justify-content: center;
+    }
+    .lock-box {
+      background: var(--bg); border: 1px solid var(--w20); border-radius: var(--radius);
+      padding: 48px 40px; width: 100%; max-width: 420px; text-align: center;
+    }
+    .lock-logo { font-family: var(--serif); font-size: 3rem; font-weight: 900; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 6px; }
+    .lock-box h2 { font-family: var(--serif); font-size: 1.3rem; margin-bottom: 6px; }
+    .lock-box p { color: var(--w50); font-size: 0.88rem; margin-bottom: 28px; }
+    .lock-input {
+      width: 100%; background: var(--w08); border: 1.5px solid var(--w20);
+      border-radius: var(--rsm); padding: 14px 18px; color: var(--white);
+      font-family: var(--sans); font-size: 1rem; outline: none; transition: var(--trans);
+      margin-bottom: 14px; text-align: center; letter-spacing: 2px;
+    }
+    .lock-input:focus { border-color: var(--pink); background: rgba(255,64,129,.06); box-shadow: 0 0 0 3px rgba(255,64,129,.1); }
+    .lock-error { color: #ff6b7a; font-size: 0.83rem; margin-top: 8px; display: none; }
+    .lock-hint { color: var(--w50); font-size: 0.78rem; margin-top: 16px; }
+
+    /* ── LAYOUT ── */
+    .admin-shell { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: 260px; flex-shrink: 0; background: var(--bg); border-right: 1px solid var(--w08); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; padding: 28px 0; overflow-y: auto; }
+    .sidebar-logo { padding: 0 24px 28px; border-bottom: 1px solid var(--w08); display: flex; align-items: center; gap: 10px; }
+    .logo-mark { font-family: var(--serif); font-size: 1.8rem; font-weight: 900; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .sidebar-logo span { font-size: 0.75rem; color: var(--w50); display: block; margin-top: -4px; }
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+    .sidebar-section-label { font-size: 0.68rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--w50); padding: 0 12px; margin: 16px 0 6px; }
+    .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: var(--w80); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: var(--trans); cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+    .sidebar-link i { width: 18px; text-align: center; color: var(--w50); transition: var(--trans); }
+    .sidebar-link:hover, .sidebar-link.active { background: rgba(255,64,129,.12); color: var(--white); }
+    .sidebar-link:hover i, .sidebar-link.active i { color: var(--pink); }
+    .sidebar-link.active { border-left: 3px solid var(--pink); padding-left: 11px; }
+    .sidebar-bottom { padding: 16px 12px; border-top: 1px solid var(--w08); }
+    .sidebar-back { display: flex; align-items: center; gap: 10px; color: var(--w50); text-decoration: none; font-size: 0.83rem; padding: 10px 14px; border-radius: 8px; transition: var(--trans); }
+    .sidebar-back:hover { color: var(--white); background: var(--w08); }
+
+    /* ── SB STATUS BADGE ── */
+    .sb-status { margin: 12px 14px 0; padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    .sb-status.connected { background: rgba(0,200,100,.1); border: 1px solid rgba(0,200,100,.25); color: #00c864; }
+    .sb-status.local { background: rgba(255,106,0,.1); border: 1px solid rgba(255,106,0,.3); color: var(--orange); }
+
+    /* ── MAIN ── */
+    .admin-main { flex: 1; overflow-y: auto; padding: 40px; }
+    .admin-topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; flex-wrap: wrap; gap: 16px; }
+    .admin-topbar h1 { font-family: var(--serif); font-size: 1.8rem; font-weight: 700; }
+    .admin-topbar h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .topbar-actions { display: flex; gap: 12px; }
+
+    /* ── STATS STRIP ── */
+    .stats-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 36px; }
+    .stat-card { background: var(--bg); border: 1px solid var(--w08); border-radius: var(--radius); padding: 22px 24px; display: flex; align-items: center; gap: 16px; transition: var(--trans); }
+    .stat-card:hover { border-color: rgba(255,64,129,.3); transform: translateY(-2px); }
+    .stat-card-icon { width: 48px; height: 48px; flex-shrink: 0; border-radius: 12px; background: var(--gradient); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #fff; }
+    .stat-card-num { font-family: var(--serif); font-size: 1.8rem; font-weight: 900; line-height: 1; }
+    .stat-card-label { font-size: 0.78rem; color: var(--w50); margin-top: 2px; }
+
+    /* ── PANELS ── */
+    .panel { display: none; } .panel.active { display: block; }
+    .card-panel { background: var(--bg); border: 1px solid var(--w08); border-radius: var(--radius); overflow: hidden; }
+    .card-panel-header { padding: 20px 28px; border-bottom: 1px solid var(--w08); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .card-panel-header h2 { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; }
+    .card-panel-body { padding: 28px; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 50px; font-weight: 600; font-size: 0.87rem; font-family: var(--sans); cursor: pointer; border: none; text-decoration: none; transition: var(--trans); position: relative; overflow: hidden; }
+    .btn-primary { background: var(--gradient); color: #fff; box-shadow: 0 6px 24px rgba(255,64,129,.4); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(255,64,129,.55); }
+    .btn-outline { background: transparent; color: var(--white); border: 1.5px solid var(--w20); }
+    .btn-outline:hover { border-color: var(--pink); color: var(--pink); }
+    .btn-danger { background: rgba(220,53,69,.15); color: #ff6b7a; border: 1px solid rgba(220,53,69,.3); }
+    .btn-danger:hover { background: rgba(220,53,69,.28); }
+    .btn-sm { padding: 7px 16px; font-size: 0.8rem; }
+    .btn-icon { padding: 9px; border-radius: 10px; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+
+    /* ── FORM ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-full { grid-column: 1 / -1; }
+    .form-group { position: relative; margin-bottom: 4px; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--w50); margin-bottom: 7px; text-transform: uppercase; letter-spacing: .06em; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; background: var(--w08); border: 1.5px solid var(--w20); border-radius: var(--rsm);
+      padding: 12px 16px; color: var(--white); font-family: var(--sans); font-size: 0.92rem;
+      outline: none; transition: var(--trans); -webkit-appearance: none;
+    }
+    .form-group select option { background: var(--bg); }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--pink); background: rgba(255,64,129,.06); box-shadow: 0 0 0 3px rgba(255,64,129,.1); }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .form-hint { font-size: 0.75rem; color: var(--w50); margin-top: 5px; }
+    .checkbox-group { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+    .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--pink); cursor: pointer; flex-shrink: 0; }
+    .checkbox-group label { margin: 0; font-size: 0.88rem; color: var(--w80); text-transform: none; letter-spacing: normal; cursor: pointer; }
+    .form-actions { display: flex; gap: 12px; align-items: center; margin-top: 28px; flex-wrap: wrap; }
+    .form-alert { display: none; padding: 12px 18px; border-radius: var(--rsm); font-size: 0.88rem; font-weight: 600; align-items: center; gap: 8px; margin-top: 16px; }
+    .form-alert.success { display: flex; background: rgba(0,200,100,.1); border: 1px solid rgba(0,200,100,.3); color: #00c864; }
+    .form-alert.error { display: flex; background: rgba(220,53,69,.1); border: 1px solid rgba(220,53,69,.3); color: #ff6b7a; }
+
+    /* ── FILE UPLOAD ZONE ── */
+    .upload-zone {
+      border: 2px dashed var(--w20); border-radius: var(--rsm); padding: 28px 20px;
+      text-align: center; cursor: pointer; transition: var(--trans); position: relative;
+    }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--pink); background: rgba(255,64,129,.06); }
+    .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-zone-icon { font-size: 2rem; color: var(--w50); margin-bottom: 8px; }
+    .upload-zone-text { font-size: 0.88rem; color: var(--w80); font-weight: 600; }
+    .upload-zone-sub { font-size: 0.75rem; color: var(--w50); margin-top: 4px; }
+    .upload-progress { display: none; margin-top: 12px; }
+    .upload-progress-bar { height: 4px; background: var(--w08); border-radius: 99px; overflow: hidden; }
+    .upload-progress-fill { height: 100%; background: var(--gradient); border-radius: 99px; width: 0%; transition: width 0.3s; }
+    .upload-progress-text { font-size: 0.78rem; color: var(--w50); margin-top: 5px; }
+    .upload-preview { margin-top: 12px; display: none; }
+    .upload-preview img { max-height: 100px; border-radius: 8px; border: 1px solid var(--w20); }
+    .upload-preview .file-info { font-size: 0.78rem; color: var(--w80); margin-top: 6px; }
+    .upload-preview .remove-upload { font-size: 0.75rem; color: #ff6b7a; cursor: pointer; text-decoration: underline; margin-top: 4px; display: inline-block; background: none; border: none; color: #ff6b7a; }
+
+    /* ── TABS (URL vs Upload) ── */
+    .input-tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+    .input-tab { padding: 7px 18px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1.5px solid var(--w20); background: transparent; color: var(--w80); transition: var(--trans); }
+    .input-tab.active { background: var(--gradient); border-color: transparent; color: #fff; }
+    .tab-pane { display: none; } .tab-pane.active { display: block; }
+
+    /* ── VIDEO PREVIEW ── */
+    .video-preview-wrap { margin-top: 12px; border-radius: var(--rsm); overflow: hidden; aspect-ratio: 16/9; background: var(--bg-dark); display: none; }
+    .video-preview-wrap.show { display: block; }
+    .video-preview-wrap iframe, .video-preview-wrap video { width: 100%; height: 100%; border: none; }
+
+    /* ── WORKS TABLE ── */
+    .works-table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead th { padding: 12px 16px; text-align: left; color: var(--w50); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; border-bottom: 1px solid var(--w08); white-space: nowrap; }
+    tbody tr { transition: background .2s; border-bottom: 1px solid var(--w08); }
+    tbody tr:hover { background: var(--w08); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody td { padding: 14px 16px; vertical-align: middle; }
+    .td-thumb { width: 60px; height: 40px; border-radius: 6px; object-fit: cover; background: var(--bg-dark); display: block; }
+    .td-thumb-placeholder { width: 60px; height: 40px; border-radius: 6px; background: var(--bg-dark); display: flex; align-items: center; justify-content: center; color: var(--w20); font-size: .9rem; }
+    .td-title { font-weight: 600; max-width: 200px; }
+    .td-title small { display: block; color: var(--w50); font-weight: 400; margin-top: 2px; font-size: .75rem; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: .72rem; font-weight: 700; letter-spacing: .04em; }
+    .badge-cat { background: rgba(255,64,129,.15); color: var(--pink); }
+    .badge-featured { background: rgba(255,215,0,.15); color: #FFD700; }
+    .td-actions { display: flex; gap: 6px; white-space: nowrap; }
+    .table-empty { text-align: center; padding: 60px 20px; color: var(--w50); font-size: .92rem; }
+    .table-empty i { font-size: 2.5rem; display: block; margin-bottom: 10px; color: var(--w20); }
+
+    /* ── SEARCH ── */
+    .search-wrap { position: relative; }
+    .search-wrap input { padding-left: 40px !important; min-width: 220px; }
+    .search-wrap i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--w50); font-size: .85rem; pointer-events: none; }
+
+    /* ── TOAST ── */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast { padding: 14px 20px; border-radius: 12px; font-size: .88rem; font-weight: 600; display: flex; align-items: center; gap: 10px; min-width: 280px; max-width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,.4); animation: toastIn .35s cubic-bezier(.34,1.56,.64,1) both; backdrop-filter: blur(12px); }
+    .toast.success { background: rgba(20,140,80,.92); color: #fff; border: 1px solid rgba(0,200,100,.4); }
+    .toast.error   { background: rgba(180,40,50,.92);  color: #fff; border: 1px solid rgba(220,53,69,.4); }
+    .toast.info    { background: rgba(61,20,20,.95);   color: #fff; border: 1px solid rgba(255,64,129,.4); }
+    @keyframes toastIn  { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes toastOut { to   { opacity:0; transform:translateX(40px); } }
+
+    /* ── EDIT MODAL ── */
+    .edit-modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,.75); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+    .edit-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .edit-modal-box { background: var(--bg); border: 1px solid var(--w20); border-radius: var(--radius); width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; transform: translateY(30px) scale(.95); transition: transform .35s cubic-bezier(.34,1.56,.64,1); padding: 36px; }
+    .edit-modal-overlay.open .edit-modal-box { transform: translateY(0) scale(1); }
+    .edit-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .edit-modal-header h2 { font-family: var(--serif); font-size: 1.3rem; }
+    .edit-modal-close { width: 36px; height: 36px; border-radius: 50%; background: var(--w08); border: 1px solid var(--w20); color: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--trans); }
+    .edit-modal-close:hover { background: var(--pink); border-color: var(--pink); }
+
+    /* ── CONFIRM ── */
+    .confirm-overlay { position: fixed; inset: 0; z-index: 1100; background: rgba(0,0,0,.8); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .confirm-overlay.open { opacity: 1; pointer-events: all; }
+    .confirm-box { background: var(--bg); border: 1px solid var(--w20); border-radius: var(--radius); padding: 36px; max-width: 400px; text-align: center; transform: scale(.9); transition: transform .25s ease; }
+    .confirm-overlay.open .confirm-box { transform: scale(1); }
+    .confirm-box i { font-size: 2.5rem; color: #ff6b7a; margin-bottom: 14px; }
+    .confirm-box h3 { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 10px; }
+    .confirm-box p { color: var(--w80); font-size: .9rem; margin-bottom: 24px; }
+    .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+
+    /* ── SETUP GUIDE ── */
+    .setup-guide { background: var(--bg); border: 1px solid rgba(255,106,0,.35); border-radius: var(--radius); padding: 28px; margin-bottom: 32px; }
+    .setup-guide h3 { font-family: var(--serif); font-size: 1.1rem; color: var(--orange); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .setup-steps { counter-reset: step; }
+    .setup-step { display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; font-size: .875rem; color: var(--w80); }
+    .setup-step::before { counter-increment: step; content: counter(step); min-width: 24px; height: 24px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; color: #fff; flex-shrink: 0; margin-top: 1px; }
+    .setup-step code { background: var(--w08); padding: 2px 7px; border-radius: 5px; font-size: .82rem; color: var(--pink); font-family: monospace; }
+    .setup-guide a { color: var(--pink); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width:900px) { .sidebar { display: none; } .admin-main { padding: 20px; } .stats-strip { grid-template-columns: repeat(2,1fr); } .form-grid { grid-template-columns: 1fr; } }
+    @media (max-width:600px) { .stats-strip { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- ── LOCK SCREEN ── -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-logo">A.</div>
+    <h2>Admin Access</h2>
+    <p>Enter your passcode to manage your portfolio</p>
+    <input type="password" id="lockInput" class="lock-input" placeholder="••••••••" autocomplete="current-password" />
+    <button class="btn btn-primary" style="width:100%" onclick="checkPasscode()">
+      <i class="fas fa-unlock-alt"></i> Enter Admin Panel
+    </button>
+    <div class="lock-error" id="lockError"><i class="fas fa-exclamation-circle"></i> Incorrect passcode</div>
+    <p class="lock-hint">Default passcode is set in <code style="font-family:monospace;color:var(--pink)">js/site-config.js</code></p>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── CONFIRM DIALOG ── -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <i class="fas fa-trash-alt"></i>
+    <h3>Delete This Work?</h3>
+    <p>This action cannot be undone. The work will be permanently removed from your portfolio.</p>
+    <div class="confirm-actions">
+      <button class="btn btn-outline" id="confirmCancel">Cancel</button>
+      <button class="btn btn-danger" id="confirmOk"><i class="fas fa-trash"></i> Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT MODAL ── -->
+<div class="edit-modal-overlay" id="editModalOverlay">
+  <div class="edit-modal-box">
+    <div class="edit-modal-header">
+      <h2>Edit Work</h2>
+      <button class="edit-modal-close" id="editModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="editWorkForm">
+      <input type="hidden" id="editWorkId" />
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="editTitle">Title *</label>
+          <input type="text" id="editTitle" required placeholder="Project title" />
+        </div>
+        <div class="form-group">
+          <label for="editCategory">Category *</label>
+          <select id="editCategory" required>
+            <option value="">Select category…</option>
+            <option>Social Media Marketing</option>
+            <option>Content Creation</option>
+            <option>Logo Design</option>
+            <option>YouTube Thumbnail</option>
+            <option>Website Building</option>
+            <option>Video Production</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label for="editDesc">Description</label>
+          <textarea id="editDesc" rows="3" placeholder="Describe the project…"></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label for="editVideoUrl">Video URL</label>
+          <input type="url" id="editVideoUrl" placeholder="YouTube, Vimeo, Facebook or direct .mp4 URL" />
+        </div>
+        <div class="form-group form-full">
+          <label for="editThumbUrl">Thumbnail URL</label>
+          <input type="url" id="editThumbUrl" placeholder="https://…" />
+        </div>
+        <div class="form-group">
+          <label for="editClient">Client Name</label>
+          <input type="text" id="editClient" placeholder="Client or brand name" />
+        </div>
+        <div class="form-group">
+          <label for="editTags">Tags (comma separated)</label>
+          <input type="text" id="editTags" placeholder="Instagram, Design, Ads" />
+        </div>
+        <div class="form-group form-full">
+          <div class="checkbox-group">
+            <input type="checkbox" id="editFeatured" />
+            <label for="editFeatured">Mark as Featured Work</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        <button type="button" class="btn btn-outline" id="editCancelBtn">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="admin-shell">
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">A.</div>
+      <div><strong style="font-size:.95rem">Admin Panel</strong><span>Ahnaf Portfolio</span></div>
+    </div>
+    <div id="sbStatusBadge"></div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Dashboard</div>
+      <button class="sidebar-link active" data-panel="dashboard"><i class="fas fa-th-large"></i> Overview</button>
+      <div class="sidebar-section-label">Portfolio</div>
+      <button class="sidebar-link" data-panel="add-work"><i class="fas fa-plus-circle"></i> Add New Work</button>
+      <button class="sidebar-link" data-panel="manage-works"><i class="fas fa-film"></i> Manage Works</button>
+      <div class="sidebar-section-label">Settings</div>
+      <button class="sidebar-link" data-panel="settings"><i class="fas fa-cog"></i> Setup & Config</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="index.html" class="sidebar-back"><i class="fas fa-arrow-left"></i> View Live Site</a>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Welcome back, <span>Ahnaf</span> 👋</h1>
+      <div class="topbar-actions">
+        <a href="index.html" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-external-link-alt"></i> Live Site</a>
+        <button class="btn btn-primary btn-sm" onclick="switchPanel('add-work')"><i class="fas fa-plus"></i> Add Work</button>
+      </div>
+    </div>
+
+    <div class="stats-strip">
+      <div class="stat-card"><div class="stat-card-icon"><i class="fas fa-film"></i></div><div><div class="stat-card-num" id="statTotal">—</div><div class="stat-card-label">Total Works</div></div></div>
+      <div class="stat-card"><div class="stat-card-icon"><i class="fas fa-star"></i></div><div><div class="stat-card-num" id="statFeatured">—</div><div class="stat-card-label">Featured</div></div></div>
+      <div class="stat-card"><div class="stat-card-icon" style="background:linear-gradient(135deg,#FF6A00,#FF4081)"><i class="fab fa-instagram"></i></div><div><div class="stat-card-num" id="statSocial">—</div><div class="stat-card-label">Social Media</div></div></div>
+      <div class="stat-card"><div class="stat-card-icon" style="background:linear-gradient(135deg,#9C27B0,#FF4081)"><i class="fas fa-palette"></i></div><div><div class="stat-card-num" id="statDesign">—</div><div class="stat-card-label">Design Works</div></div></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <h2><i class="fas fa-clock" style="color:var(--pink);margin-right:8px"></i>Recent Works</h2>
+          <button class="btn btn-outline btn-sm" onclick="switchPanel('manage-works')">View All</button>
+        </div>
+        <div class="card-panel-body">
+          <div class="works-table-wrap"><table>
+            <thead><tr><th>Thumb</th><th>Title</th><th>Category</th><th>Featured</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="dashRecentBody"><tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>No works yet.</td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD WORK -->
+    <div class="panel" id="panel-add-work">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <h2><i class="fas fa-plus-circle" style="color:var(--pink);margin-right:8px"></i>Add New Work</h2>
+        </div>
+        <div class="card-panel-body">
+          <form id="addWorkForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="addTitle">Work Title *</label>
+                <input type="text" id="addTitle" required placeholder="e.g. Nike Instagram Campaign" />
+              </div>
+              <div class="form-group">
+                <label for="addCategory">Category *</label>
+                <select id="addCategory" required>
+                  <option value="" disabled selected>Select a category…</option>
+                  <option>Social Media Marketing</option>
+                  <option>Content Creation</option>
+                  <option>Logo Design</option>
+                  <option>YouTube Thumbnail</option>
+                  <option>Website Building</option>
+                  <option>Video Production</option>
+                </select>
+              </div>
+
+              <div class="form-group form-full">
+                <label for="addDesc">Description</label>
+                <textarea id="addDesc" rows="3" placeholder="Describe the project, strategy, results…"></textarea>
+              </div>
+
+              <!-- VIDEO (URL tab or Upload tab) -->
+              <div class="form-group form-full">
+                <label>Video *</label>
+                <div class="input-tabs">
+                  <button type="button" class="input-tab active" data-tab="video-url-tab">🔗 Paste URL</button>
+                  <button type="button" class="input-tab" data-tab="video-upload-tab">⬆️ Upload File</button>
+                </div>
+                <div class="tab-pane active" id="video-url-tab">
+                  <input type="url" id="addVideoUrl" placeholder="YouTube, Vimeo, Facebook, or .mp4 link" />
+                  <div class="form-hint">Supports YouTube, Vimeo, Facebook, direct .mp4 URLs</div>
+                  <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px" id="previewVideoBtn"><i class="fas fa-eye"></i> Preview</button>
+                  <div class="video-preview-wrap" id="videoPreviewWrap"></div>
+                </div>
+                <div class="tab-pane" id="video-upload-tab">
+                  <div id="sbVideoUploadNote" class="form-hint" style="margin-bottom:10px;color:var(--orange)">
+                    <i class="fas fa-exclamation-triangle"></i> File uploads require Supabase to be configured in site-config.js
+                  </div>
+                  <div class="upload-zone" id="videoUploadZone">
+                    <input type="file" id="videoFileInput" accept="video/mp4,video/webm,video/ogg" />
+                    <div class="upload-zone-icon"><i class="fas fa-film"></i></div>
+                    <div class="upload-zone-text">Click to browse or drag & drop video</div>
+                    <div class="upload-zone-sub">MP4, WebM, OGG — max 500MB</div>
+                  </div>
+                  <div class="upload-progress" id="videoUploadProgress">
+                    <div class="upload-progress-bar"><div class="upload-progress-fill" id="videoProgressFill"></div></div>
+                    <div class="upload-progress-text" id="videoProgressText">Uploading…</div>
+                  </div>
+                  <div class="upload-preview" id="videoUploadPreview">
+                    <div class="file-info" id="videoUploadInfo"></div>
+                    <button type="button" class="remove-upload" onclick="clearVideoUpload()">✕ Remove</button>
+                  </div>
+                  <input type="hidden" id="addVideoUploadedUrl" />
+                </div>
+              </div>
+
+              <!-- THUMBNAIL (URL or Upload) -->
+              <div class="form-group form-full">
+                <label>Thumbnail Image</label>
+                <div class="input-tabs">
+                  <button type="button" class="input-tab active" data-tab="thumb-url-tab">🔗 Paste URL</button>
+                  <button type="button" class="input-tab" data-tab="thumb-upload-tab">⬆️ Upload Image</button>
+                </div>
+                <div class="tab-pane active" id="thumb-url-tab">
+                  <input type="url" id="addThumbUrl" placeholder="https://… (paste image URL)" />
+                  <div id="thumbUrlPreview" style="margin-top:10px;display:none">
+                    <img id="thumbUrlPreviewImg" src="" alt="Preview" style="max-height:100px;border-radius:8px;border:1px solid var(--w20);" />
+                  </div>
+                </div>
+                <div class="tab-pane" id="thumb-upload-tab">
+                  <div id="sbThumbUploadNote" class="form-hint" style="margin-bottom:10px;color:var(--orange)">
+                    <i class="fas fa-exclamation-triangle"></i> File uploads require Supabase to be configured in site-config.js
+                  </div>
+                  <div class="upload-zone" id="thumbUploadZone">
+                    <input type="file" id="thumbFileInput" accept="image/jpeg,image/png,image/webp,image/gif" />
+                    <div class="upload-zone-icon"><i class="fas fa-image"></i></div>
+                    <div class="upload-zone-text">Click to browse or drag & drop image</div>
+                    <div class="upload-zone-sub">JPG, PNG, WebP, GIF — max 10MB</div>
+                  </div>
+                  <div class="upload-progress" id="thumbUploadProgress">
+                    <div class="upload-progress-bar"><div class="upload-progress-fill" id="thumbProgressFill"></div></div>
+                    <div class="upload-progress-text" id="thumbProgressText">Uploading…</div>
+                  </div>
+                  <div class="upload-preview" id="thumbUploadPreview">
+                    <img id="thumbUploadPreviewImg" src="" alt="Preview" style="max-height:100px;border-radius:8px;border:1px solid var(--w20);" />
+                    <div class="file-info" id="thumbUploadInfo"></div>
+                    <button type="button" class="remove-upload" onclick="clearThumbUpload()">✕ Remove</button>
+                  </div>
+                  <input type="hidden" id="addThumbUploadedUrl" />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="addClient">Client / Brand Name</label>
+                <input type="text" id="addClient" placeholder="e.g. Adidas Bangladesh" />
+              </div>
+              <div class="form-group">
+                <label for="addTags">Tags <span style="color:var(--w50);font-weight:400">(comma separated)</span></label>
+                <input type="text" id="addTags" placeholder="Instagram, Ads, Growth" />
+              </div>
+              <div class="form-group form-full">
+                <div class="checkbox-group">
+                  <input type="checkbox" id="addFeatured" />
+                  <label for="addFeatured">Mark as Featured Work <small style="color:var(--w50);font-weight:400">(shows ✦ badge)</small></label>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="addWorkBtn"><i class="fas fa-plus"></i> Add to Portfolio</button>
+              <button type="reset" class="btn btn-outline"><i class="fas fa-times"></i> Clear</button>
+            </div>
+            <div class="form-alert" id="addFormAlert"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGE WORKS -->
+    <div class="panel" id="panel-manage-works">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <h2><i class="fas fa-film" style="color:var(--pink);margin-right:8px"></i>All Portfolio Works</h2>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <div class="search-wrap form-group" style="margin:0">
+              <i class="fas fa-search"></i>
+              <input type="text" id="searchInput" placeholder="Search works…" />
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="switchPanel('add-work')"><i class="fas fa-plus"></i> Add Work</button>
+          </div>
+        </div>
+        <div class="card-panel-body">
+          <div class="works-table-wrap"><table>
+            <thead><tr><th>Thumb</th><th>Title / Client</th><th>Category</th><th>Featured</th><th>Date Added</th><th>Actions</th></tr></thead>
+            <tbody id="manageWorksBody"><tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>Loading…</td></tr></tbody>
+          </table></div>
+          <div id="paginationWrap" style="display:flex;justify-content:center;gap:10px;margin-top:24px;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS / SETUP -->
+    <div class="panel" id="panel-settings">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <h2><i class="fas fa-cog" style="color:var(--pink);margin-right:8px"></i>Setup & Configuration</h2>
+        </div>
+        <div class="card-panel-body">
+
+          <div class="setup-guide">
+            <h3><i class="fas fa-database"></i> Connect Supabase (Free Backend)</h3>
+            <div class="setup-steps">
+              <div class="setup-step">Go to <a href="https://supabase.com" target="_blank">supabase.com</a> and create a FREE account and new project.</div>
+              <div class="setup-step">In your Supabase project, go to <strong>Table Editor</strong> → <strong>New Table</strong>. Name it <code>portfolio_works</code>. Add columns: <code>id</code> (uuid, default: gen_random_uuid()), <code>title</code> (text), <code>category</code> (text), <code>description</code> (text), <code>video_url</code> (text), <code>thumbnail_url</code> (text), <code>client_name</code> (text), <code>tags</code> (text[]), <code>featured</code> (bool, default false), <code>created_at</code> (timestamptz, default: now()).</div>
+              <div class="setup-step">Go to <strong>Storage</strong> → <strong>New Bucket</strong>. Name it <code>portfolio-media</code> and make it <strong>Public</strong>.</div>
+              <div class="setup-step">Go to <strong>Project Settings → API</strong>. Copy the <strong>Project URL</strong> and <strong>anon public key</strong>.</div>
+              <div class="setup-step">Open <code>js/site-config.js</code> and paste the URL and key into <code>supabaseUrl</code> and <code>supabaseAnonKey</code>. Also change the <code>adminPasscode</code> to something strong.</div>
+              <div class="setup-step">In Supabase → <strong>Authentication → Policies</strong>, enable Row Level Security and add a policy on <code>portfolio_works</code> allowing SELECT for everyone (anon), and INSERT/UPDATE/DELETE for authenticated or for all (since this is a personal site). For storage, allow all operations on <code>portfolio-media</code>.</div>
+              <div class="setup-step">Re-deploy your site. The admin panel will now save works to Supabase and let you upload images/videos!</div>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-dark);border:1px solid var(--w08);border-radius:var(--radius);padding:24px;margin-top:20px">
+            <h3 style="font-family:var(--serif);font-size:1rem;margin-bottom:16px;color:var(--w80)"><i class="fas fa-info-circle" style="color:var(--pink);margin-right:8px"></i>Current Status</h3>
+            <div id="configStatus" style="font-size:.875rem;line-height:2;color:var(--w80)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+'use strict';
+
+/* ── CONFIG + SUPABASE ── */
+const CFG = window.AHNAF_CONFIG || {};
+const SB_READY = !!(
+  CFG.supabaseUrl && CFG.supabaseAnonKey &&
+  !CFG.supabaseUrl.includes('PASTE_') &&
+  !CFG.supabaseAnonKey.includes('PASTE_') &&
+  window.supabase
+);
+const sb = SB_READY ? window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey) : null;
+const LOCAL_KEY = 'ahnaf_portfolio_works';
+const TABLE = 'portfolio_works';
+let allWorks = [], deleteTargetId = null, currentPage = 1;
+const PAGE_SIZE = 10;
+
+/* ── LOCK SCREEN ── */
+function unlockAdmin() {
+  document.getElementById('lockScreen').style.display = 'none';
+  loadAllWorks();
+  updateSbStatus();
+  updateConfigStatus();
+}
+function checkPasscode() {
+  const input = document.getElementById('lockInput').value;
+  const correct = (CFG.adminPasscode || 'Ahnaf2025!');
+  if (input === correct) {
+    sessionStorage.setItem('ahnaf_admin_unlocked', '1');
+    unlockAdmin();
+  } else {
+    const errEl = document.getElementById('lockError');
+    errEl.style.display = 'flex';
+    document.getElementById('lockInput').style.borderColor = '#ff6b7a';
+    setTimeout(() => { errEl.style.display = 'none'; document.getElementById('lockInput').style.borderColor = ''; }, 3000);
+  }
+}
+document.getElementById('lockInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPasscode(); });
+if (sessionStorage.getItem('ahnaf_admin_unlocked') === '1') { unlockAdmin(); }
+
+/* ── SUPABASE STATUS ── */
+function updateSbStatus() {
+  const el = document.getElementById('sbStatusBadge');
+  if (SB_READY) {
+    el.innerHTML = `<div class="sb-status connected"><i class="fas fa-circle" style="font-size:.5rem"></i> Supabase Connected</div>`;
+  } else {
+    el.innerHTML = `<div class="sb-status local"><i class="fas fa-circle" style="font-size:.5rem"></i> Local Storage Mode</div>`;
+  }
+  // Update upload notes
+  const uploadNote = SB_READY ? 'none' : 'block';
+  ['sbVideoUploadNote','sbThumbUploadNote'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = uploadNote;
+  });
+  const uploadZones = ['videoUploadZone','thumbUploadZone'];
+  uploadZones.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = SB_READY ? '1' : '0.5';
+  });
+  document.querySelectorAll('#video-upload-tab input[type=file], #thumb-upload-tab input[type=file]').forEach(el => {
+    el.disabled = !SB_READY;
+  });
+}
+function updateConfigStatus() {
+  document.getElementById('configStatus').innerHTML = `
+    <div>📦 Storage backend: <strong>${SB_READY ? '✅ Supabase' : '⚠️ localStorage (works locally, lost on clear)'}</strong></div>
+    <div>📁 Storage bucket: <strong>${CFG.storageBucket || 'portfolio-media'}</strong></div>
+    <div>🔑 Admin passcode: <strong>${CFG.adminPasscode ? '✅ Set in site-config.js' : '⚠️ Using default'}</strong></div>
+    <div>🌐 Supabase URL: <strong>${SB_READY ? CFG.supabaseUrl : 'Not configured'}</strong></div>
+  `;
+}
+
+/* ── PANEL NAVIGATION ── */
+function switchPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  const panel = document.getElementById('panel-' + id);
+  if (panel) panel.classList.add('active');
+  const link = document.querySelector(`.sidebar-link[data-panel="${id}"]`);
+  if (link) link.classList.add('active');
+  if (id === 'manage-works') renderManageTable(allWorks);
+}
+document.querySelectorAll('.sidebar-link[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => switchPanel(btn.dataset.panel));
+});
+
+/* ── TOAST ── */
+function toast(msg, type='info') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle' };
+  el.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(() => { el.style.animation = 'toastOut .3s ease forwards'; setTimeout(() => el.remove(), 310); }, 3500);
+}
+
+/* ── DATA LAYER ── */
+async function loadAllWorks() {
+  try {
+    if (sb) {
+      const { data, error } = await sb.from(TABLE).select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      allWorks = data || [];
+    } else {
+      try {
+        const res = await fetch('tables/' + TABLE + '?limit=200&sort=created_at');
+        if (res.ok) { const d = await res.json(); allWorks = (d.data || []).reverse(); }
+        else throw new Error();
+      } catch {
+        const stored = localStorage.getItem(LOCAL_KEY);
+        allWorks = stored ? JSON.parse(stored).sort((a,b) => new Date(b.created_at||0) - new Date(a.created_at||0)) : [];
+      }
+    }
+  } catch(e) {
+    console.error(e);
+    toast('Failed to load works.', 'error');
+    allWorks = [];
+  }
+  updateStats();
+  renderDashRecent();
+  renderManageTable(allWorks);
+}
+
+async function saveWork(payload) {
+  payload.created_at = payload.created_at || new Date().toISOString();
+  payload.updated_at = new Date().toISOString();
+  payload.id = payload.id || crypto.randomUUID();
+  if (sb) {
+    const { error } = await sb.from(TABLE).insert([payload]);
+    if (error) throw error;
+  } else {
+    try {
+      const res = await fetch('tables/' + TABLE, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      if (!res.ok) throw new Error();
+    } catch {
+      const stored = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+      stored.unshift(payload);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(stored));
+    }
+  }
+}
+
+async function updateWork(id, payload) {
+  payload.updated_at = new Date().toISOString();
+  if (sb) {
+    const { error } = await sb.from(TABLE).update(payload).eq('id', id);
+    if (error) throw error;
+  } else {
+    try {
+      const res = await fetch('tables/' + TABLE + '/' + id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      if (!res.ok) throw new Error();
+    } catch {
+      const stored = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+      const idx = stored.findIndex(w => w.id === id);
+      if (idx >= 0) { stored[idx] = { ...stored[idx], ...payload }; localStorage.setItem(LOCAL_KEY, JSON.stringify(stored)); }
+    }
+  }
+}
+
+async function deleteWork(id) {
+  if (sb) {
+    const { error } = await sb.from(TABLE).delete().eq('id', id);
+    if (error) throw error;
+  } else {
+    try {
+      const res = await fetch('tables/' + TABLE + '/' + id, { method: 'DELETE' });
+      if (!res.ok) throw new Error();
+    } catch {
+      const stored = JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]');
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(stored.filter(w => w.id !== id)));
+    }
+  }
+}
+
+/* ── FILE UPLOAD ── */
+async function uploadFile(file, folder) {
+  if (!sb) throw new Error('Supabase not configured');
+  const ext = file.name.split('.').pop();
+  const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { data, error } = await sb.storage.from(CFG.storageBucket || 'portfolio-media').upload(path, file, { cacheControl: '3600', upsert: false });
+  if (error) throw error;
+  const { data: { publicUrl } } = sb.storage.from(CFG.storageBucket || 'portfolio-media').getPublicUrl(data.path);
+  return publicUrl;
+}
+
+/* video upload */
+document.getElementById('videoFileInput').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (!file) return;
+  if (!SB_READY) { toast('Connect Supabase first to upload files.', 'error'); this.value = ''; return; }
+  const prog = document.getElementById('videoUploadProgress');
+  const fill = document.getElementById('videoProgressFill');
+  const text = document.getElementById('videoProgressText');
+  prog.style.display = 'block';
+  fill.style.width = '30%';
+  text.textContent = 'Uploading video…';
+  try {
+    fill.style.width = '60%';
+    const url = await uploadFile(file, 'videos');
+    fill.style.width = '100%';
+    text.textContent = '✅ Upload complete!';
+    document.getElementById('addVideoUploadedUrl').value = url;
+    const prev = document.getElementById('videoUploadPreview');
+    document.getElementById('videoUploadInfo').textContent = `${file.name} (${(file.size/1024/1024).toFixed(1)} MB) — Uploaded!`;
+    prev.style.display = 'block';
+    toast('Video uploaded!', 'success');
+  } catch(err) {
+    text.textContent = '❌ Upload failed: ' + (err.message || 'Check Supabase config');
+    toast('Video upload failed.', 'error');
+  }
+});
+
+/* thumb upload */
+document.getElementById('thumbFileInput').addEventListener('change', async function() {
+  const file = this.files[0];
+  if (!file) return;
+  if (!SB_READY) { toast('Connect Supabase first to upload files.', 'error'); this.value = ''; return; }
+  const prog = document.getElementById('thumbUploadProgress');
+  const fill = document.getElementById('thumbProgressFill');
+  const text = document.getElementById('thumbProgressText');
+  prog.style.display = 'block';
+  fill.style.width = '30%';
+  text.textContent = 'Uploading image…';
+  try {
+    fill.style.width = '60%';
+    const url = await uploadFile(file, 'thumbnails');
+    fill.style.width = '100%';
+    text.textContent = '✅ Upload complete!';
+    document.getElementById('addThumbUploadedUrl').value = url;
+    const prev = document.getElementById('thumbUploadPreview');
+    document.getElementById('thumbUploadPreviewImg').src = url;
+    document.getElementById('thumbUploadInfo').textContent = `${file.name} (${(file.size/1024).toFixed(0)} KB)`;
+    prev.style.display = 'block';
+    toast('Thumbnail uploaded!', 'success');
+  } catch(err) {
+    text.textContent = '❌ Upload failed: ' + (err.message || 'Check Supabase config');
+    toast('Image upload failed.', 'error');
+  }
+});
+
+function clearVideoUpload() {
+  document.getElementById('videoFileInput').value = '';
+  document.getElementById('addVideoUploadedUrl').value = '';
+  document.getElementById('videoUploadPreview').style.display = 'none';
+  document.getElementById('videoUploadProgress').style.display = 'none';
+}
+function clearThumbUpload() {
+  document.getElementById('thumbFileInput').value = '';
+  document.getElementById('addThumbUploadedUrl').value = '';
+  document.getElementById('thumbUploadPreview').style.display = 'none';
+  document.getElementById('thumbUploadProgress').style.display = 'none';
+}
+
+/* ── DRAG-DROP ── */
+['videoUploadZone','thumbUploadZone'].forEach(id => {
+  const zone = document.getElementById(id);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const inputId = id === 'videoUploadZone' ? 'videoFileInput' : 'thumbFileInput';
+    const dt = new DataTransfer(); dt.items.add(file);
+    document.getElementById(inputId).files = dt.files;
+    document.getElementById(inputId).dispatchEvent(new Event('change'));
+  });
+});
+
+/* ── INPUT TABS ── */
+document.querySelectorAll('.input-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const tabId = tab.dataset.tab;
+    const parent = tab.closest('.form-group');
+    parent.querySelectorAll('.input-tab').forEach(t => t.classList.remove('active'));
+    parent.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  });
+});
+
+/* ── STATS ── */
+function updateStats() {
+  document.getElementById('statTotal').textContent    = allWorks.length;
+  document.getElementById('statFeatured').textContent = allWorks.filter(w => w.featured).length;
+  document.getElementById('statSocial').textContent   = allWorks.filter(w => w.category === 'Social Media Marketing').length;
+  document.getElementById('statDesign').textContent   = allWorks.filter(w => ['Logo Design','YouTube Thumbnail'].includes(w.category)).length;
+}
+
+/* ── RENDER RECENT ── */
+function renderDashRecent() {
+  const tbody = document.getElementById('dashRecentBody');
+  const recent = allWorks.slice(0, 5);
+  if (!recent.length) { tbody.innerHTML = `<tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>No works yet.</td></tr>`; return; }
+  tbody.innerHTML = recent.map(w => buildTableRow(w)).join('');
+  bindTableActions(tbody);
+}
+
+/* ── MANAGE TABLE ── */
+let searchTerm = '';
+document.getElementById('searchInput').addEventListener('input', function() {
+  searchTerm = this.value.toLowerCase(); currentPage = 1;
+  const filtered = allWorks.filter(w => (w.title||'').toLowerCase().includes(searchTerm) || (w.category||'').toLowerCase().includes(searchTerm) || (w.client_name||'').toLowerCase().includes(searchTerm));
+  renderManageTable(filtered);
+});
+function renderManageTable(works) {
+  const tbody = document.getElementById('manageWorksBody');
+  const pag   = document.getElementById('paginationWrap');
+  if (!works.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty"><i class="fas fa-film"></i>${searchTerm ? 'No results.' : 'No works yet.'}</td></tr>`;
+    pag.innerHTML = ''; return;
+  }
+  const totalPages = Math.ceil(works.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = 1;
+  tbody.innerHTML = works.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE).map(w => buildTableRow(w)).join('');
+  bindTableActions(tbody);
+  pag.innerHTML = '';
+  if (totalPages > 1) {
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm ' + (i === currentPage ? 'btn-primary' : 'btn-outline');
+      btn.textContent = i;
+      btn.addEventListener('click', () => { currentPage = i; renderManageTable(works); });
+      pag.appendChild(btn);
+    }
+  }
+}
+function buildTableRow(w) {
+  const thumb = w.thumbnail_url ? `<img src="${esc(w.thumbnail_url)}" class="td-thumb" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` : '';
+  const ph = `<div class="td-thumb-placeholder" ${w.thumbnail_url?'style="display:none"':''}><i class="fas fa-film"></i></div>`;
+  const date = w.created_at ? new Date(w.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+  return `<tr data-id="${esc(w.id)}">
+    <td>${thumb}${ph}</td>
+    <td class="td-title">${esc(w.title)}<small>${w.client_name?esc(w.client_name):''}</small></td>
+    <td><span class="badge badge-cat">${esc(w.category||'—')}</span></td>
+    <td>${w.featured?'<span class="badge badge-featured">✦ Yes</span>':'<span style="color:var(--w50)">—</span>'}</td>
+    <td style="color:var(--w50);font-size:.82rem">${date}</td>
+    <td class="td-actions">
+      <button class="btn btn-outline btn-sm btn-icon edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+      <button class="btn btn-danger btn-sm btn-icon delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+    </td>
+  </tr>`;
+}
+function bindTableActions(tbody) {
+  tbody.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => { const id = btn.closest('tr').dataset.id; openEditModal(allWorks.find(w => w.id === id)); }));
+  tbody.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => { deleteTargetId = btn.closest('tr').dataset.id; document.getElementById('confirmOverlay').classList.add('open'); }));
+}
+
+/* ── ADD WORK ── */
+document.getElementById('addWorkForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('addWorkBtn');
+  const alertEl = document.getElementById('addFormAlert');
+  alertEl.className = 'form-alert';
+  const tags = (document.getElementById('addTags').value || '').split(',').map(t => t.trim()).filter(Boolean);
+
+  // Determine final video URL (upload takes priority over URL tab)
+  const videoUploadedUrl = document.getElementById('addVideoUploadedUrl').value.trim();
+  const videoTypedUrl    = document.getElementById('addVideoUrl').value.trim();
+  const thumbUploadedUrl = document.getElementById('addThumbUploadedUrl').value.trim();
+  const thumbTypedUrl    = document.getElementById('addThumbUrl').value.trim();
+
+  const payload = {
+    title:         document.getElementById('addTitle').value.trim(),
+    category:      document.getElementById('addCategory').value,
+    description:   document.getElementById('addDesc').value.trim(),
+    video_url:     videoUploadedUrl || videoTypedUrl,
+    thumbnail_url: thumbUploadedUrl || thumbTypedUrl,
+    client_name:   document.getElementById('addClient').value.trim(),
+    tags,
+    featured:      document.getElementById('addFeatured').checked,
+  };
+
+  if (!payload.title || !payload.category) { toast('Title and category are required.', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding…';
+  try {
+    await saveWork(payload);
+    alertEl.className = 'form-alert success';
+    alertEl.innerHTML = '<i class="fas fa-check-circle"></i> Work added! It now appears on your portfolio.';
+    this.reset();
+    clearVideoUpload(); clearThumbUpload();
+    document.getElementById('videoPreviewWrap').classList.remove('show');
+    document.getElementById('thumbUrlPreview').style.display = 'none';
+    toast('Work added to portfolio! 🎉', 'success');
+    await loadAllWorks();
+  } catch(err) {
+    alertEl.className = 'form-alert error';
+    alertEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Failed to add work: ' + (err.message || 'Unknown error');
+    toast('Error adding work.', 'error');
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-plus"></i> Add to Portfolio';
+  setTimeout(() => { alertEl.className = 'form-alert'; }, 6000);
+});
+
+/* ── VIDEO PREVIEW ── */
+document.getElementById('previewVideoBtn').addEventListener('click', () => {
+  const url = document.getElementById('addVideoUrl').value.trim();
+  const wrap = document.getElementById('videoPreviewWrap');
+  if (!url) { toast('Enter a video URL first.', 'info'); return; }
+  wrap.innerHTML = buildVideoEmbed(url);
+  wrap.classList.add('show');
+});
+
+/* ── THUMB URL PREVIEW ── */
+document.getElementById('addThumbUrl').addEventListener('input', function() {
+  const wrap = document.getElementById('thumbUrlPreview');
+  const img  = document.getElementById('thumbUrlPreviewImg');
+  if (this.value.trim()) { img.src = this.value.trim(); wrap.style.display = 'block'; }
+  else wrap.style.display = 'none';
+});
+
+/* ── EDIT MODAL ── */
+const editOverlay = document.getElementById('editModalOverlay');
+function openEditModal(work) {
+  if (!work) return;
+  document.getElementById('editWorkId').value   = work.id;
+  document.getElementById('editTitle').value    = work.title || '';
+  document.getElementById('editCategory').value = work.category || '';
+  document.getElementById('editDesc').value     = work.description || '';
+  document.getElementById('editVideoUrl').value = work.video_url || '';
+  document.getElementById('editThumbUrl').value = work.thumbnail_url || '';
+  document.getElementById('editClient').value   = work.client_name || '';
+  document.getElementById('editTags').value     = Array.isArray(work.tags) ? work.tags.join(', ') : (work.tags || '');
+  document.getElementById('editFeatured').checked = !!work.featured;
+  editOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeEditModal() { editOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+document.getElementById('editModalClose').addEventListener('click', closeEditModal);
+document.getElementById('editCancelBtn').addEventListener('click', closeEditModal);
+editOverlay.addEventListener('click', e => { if (e.target === editOverlay) closeEditModal(); });
+
+document.getElementById('editWorkForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('[type="submit"]');
+  const id  = document.getElementById('editWorkId').value;
+  const tags = (document.getElementById('editTags').value || '').split(',').map(t => t.trim()).filter(Boolean);
+  const payload = {
+    title:         document.getElementById('editTitle').value.trim(),
+    category:      document.getElementById('editCategory').value,
+    description:   document.getElementById('editDesc').value.trim(),
+    video_url:     document.getElementById('editVideoUrl').value.trim(),
+    thumbnail_url: document.getElementById('editThumbUrl').value.trim(),
+    client_name:   document.getElementById('editClient').value.trim(),
+    tags,
+    featured:      document.getElementById('editFeatured').checked,
+  };
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+  try {
+    await updateWork(id, payload);
+    toast('Work updated!', 'success');
+    closeEditModal();
+    await loadAllWorks();
+  } catch { toast('Failed to save changes.', 'error'); }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+});
+
+/* ── DELETE ── */
+document.getElementById('confirmCancel').addEventListener('click', () => { document.getElementById('confirmOverlay').classList.remove('open'); deleteTargetId = null; });
+document.getElementById('confirmOk').addEventListener('click', async () => {
+  if (!deleteTargetId) return;
+  document.getElementById('confirmOverlay').classList.remove('open');
+  try { await deleteWork(deleteTargetId); toast('Work deleted.', 'success'); deleteTargetId = null; await loadAllWorks(); }
+  catch { toast('Failed to delete.', 'error'); }
+});
+
+/* ── VIDEO EMBED ── */
+function buildVideoEmbed(url) {
+  if (!url) return '';
+  const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (yt) return `<iframe src="https://www.youtube.com/embed/${yt[1]}?autoplay=1&rel=0" allow="autoplay;encrypted-media" allowfullscreen></iframe>`;
+  const vi = url.match(/vimeo\.com\/(\d+)/);
+  if (vi) return `<iframe src="https://player.vimeo.com/video/${vi[1]}?autoplay=1" allow="autoplay;fullscreen" allowfullscreen></iframe>`;
+  if (url.match(/\.(mp4|webm|ogg)(\?.*)?$/i)) return `<video controls autoplay playsinline style="width:100%;height:100%;background:#000"><source src="${esc(url)}" type="video/mp4"></video>`;
+  return `<iframe src="${esc(url)}" allowfullscreen></iframe>`;
+}
+
+/* ── HELPERS ── */
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+</script>
+</body>
+</html>
