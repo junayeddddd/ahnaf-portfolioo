@@ -11,7 +11,7 @@ window.AHNAF_CONFIG = {
   // Step 2: Create a new project
   // Step 3: Go to Project Settings → API
   // Step 4: Copy "Project URL" and "anon/public" key below
-  supabaseUrl:      'https://<pehnbigwultrezpwsjik>.supabase.co',
+  supabaseUrl:      'https://pehnbigwultrezpwsjik.supabase.co',
   supabaseAnonKey:  'sb_publishable_Xun_YPVeNTDO6wWMJ-RnYw_jHAlUlTD',
 
   // ── STORAGE ──
