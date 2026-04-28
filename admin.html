@@ -572,14 +572,18 @@ let allWorks = [], deleteTargetId = null, currentPage = 1;
 const PAGE_SIZE = 10;
 
 /* ── LOCK SCREEN ── */
+function unlockAdmin() {
+  document.getElementById('lockScreen').style.display = 'none';
+  loadAllWorks();
+  updateSbStatus();
+  updateConfigStatus();
+}
 function checkPasscode() {
   const input = document.getElementById('lockInput').value;
   const correct = (CFG.adminPasscode || 'Ahnaf2025!');
   if (input === correct) {
-    document.getElementById('lockScreen').style.display = 'none';
-    loadAllWorks();
-    updateSbStatus();
-    updateConfigStatus();
+    sessionStorage.setItem('ahnaf_admin_unlocked', '1');
+    unlockAdmin();
   } else {
     const errEl = document.getElementById('lockError');
     errEl.style.display = 'flex';
@@ -588,6 +592,7 @@ function checkPasscode() {
   }
 }
 document.getElementById('lockInput').addEventListener('keydown', e => { if (e.key === 'Enter') checkPasscode(); });
+if (sessionStorage.getItem('ahnaf_admin_unlocked') === '1') { unlockAdmin(); }
 
 /* ── SUPABASE STATUS ── */
 function updateSbStatus() {
